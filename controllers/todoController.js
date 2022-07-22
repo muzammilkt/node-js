@@ -1,4 +1,6 @@
 const { Request, Response, response } = require("express");
+const Todo = require("../models/Todo");
+const todoService = require("../services/todoService");
 
 /**
  *
@@ -7,26 +9,73 @@ const { Request, Response, response } = require("express");
  * @description This is conroller
  */
 
-const todoData = ["muzammil", "nihal", "fayis", "suhail"];
-
-const getAllData = function (req, res) {
-  res.send(todoData);
+//create
+const createTodo = async (req, res) => {
+  try {
+    const data = {
+      title: req.body.title,
+      details: req.body.details,
+    };
+    const create = await todoService.create(data);
+    res.json(create);
+  } catch (error) {
+    res.json(error.message);
+  }
 };
 
-const getOneData = function (req, res) {
-  res.send("get one");
+//getall data
+const getAllData = async (req, res) => {
+  try {
+    const getAll = await todoService.list();
+    res.json(getAll);
+  } catch (error) {
+    res.json(error.message);
+  }
 };
 
-const createTodo = function (res, req) {
-  res.send("creat");
+//get one
+const getOneData = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const item = await todoService.show(id);
+    res.json(item);
+  } catch (err) {
+    res.json(err.message);
+  }
 };
 
-const deleteById = function (req, res) {
-  res.send("delete");
+//delete
+const deleteById = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const deleteItem = await todoService.distroy(id);
+    if (deleteItem) {
+      res.json("delete successfully");
+    } else {
+      res.json("failed to delete data");
+    }
+  } catch (error) {
+    res.json(error.message);
+  }
 };
 
-const updateData = function (req, res) {
-    res.send('update');
+//update
+const updateData = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { details, title } = req.body;
+    const data = { title, details };
+    const updateData = await todoService.edit(id, data);
+    if(updateData.modifiedCount){
+      res.json("updated");
+      return
+    }
+    res.json("updation");
+  } catch (error) {
+    console.log(error);
+    res.json(error.message);
+
+  }
 };
 
 module.exports = {
